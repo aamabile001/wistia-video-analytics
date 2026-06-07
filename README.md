@@ -69,8 +69,8 @@ streamlit run dashboard/app.py
 Deployment is designed to use local copied AWS files and this profile:
 
 ```powershell
-$env:AWS_SHARED_CREDENTIALS_FILE = "C:\path\to\project\.aws\credentials"
-$env:AWS_CONFIG_FILE = "C:\path\to\project\.aws\config"
+$env:AWS_SHARED_CREDENTIALS_FILE = "..\.aws\credentials"
+$env:AWS_CONFIG_FILE = "..\.aws\config"
 aws sts get-caller-identity --profile wistia-project
 ```
 
