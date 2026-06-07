@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Core AWS resources for the Wistia video analytics project.
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: wistia-video-analytics
+  BucketName:
+    Type: String
+    Description: Globally unique S3 bucket name for raw and curated analytics data.
+
+Resources:
+  AnalyticsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+
+  GlueDatabase:
+    Type: AWS::Glue::Database
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseInput:
+        Name: wistia_video_analytics
+        Description: Curated Wistia video analytics dimensional model.
+
+Outputs:
+  BucketName:
+    Value: !Ref AnalyticsBucket
+  GlueDatabaseName:
+    Value: !Ref GlueDatabase
