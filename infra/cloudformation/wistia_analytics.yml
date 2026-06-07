@@ -37,6 +37,93 @@ Resources:
         Name: wistia_video_analytics
         Description: Curated Wistia video analytics dimensional model.
 
+  DimMediaTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref GlueDatabase
+      TableInput:
+        Name: dim_media
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          classification: parquet
+          EXTERNAL: "TRUE"
+        StorageDescriptor:
+          Location: !Sub "s3://${AnalyticsBucket}/curated/dim_media"
+          InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+          Columns:
+            - Name: media_id
+              Type: string
+            - Name: title
+              Type: string
+            - Name: url
+              Type: string
+            - Name: channel
+              Type: string
+            - Name: created_at
+              Type: string
+
+  DimVisitorTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref GlueDatabase
+      TableInput:
+        Name: dim_visitor
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          classification: parquet
+          EXTERNAL: "TRUE"
+        StorageDescriptor:
+          Location: !Sub "s3://${AnalyticsBucket}/curated/dim_visitor"
+          InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+          Columns:
+            - Name: visitor_id
+              Type: string
+            - Name: ip_address
+              Type: string
+            - Name: country
+              Type: string
+
+  FactMediaEngagementTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref AWS::AccountId
+      DatabaseName: !Ref GlueDatabase
+      TableInput:
+        Name: fact_media_engagement
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          classification: parquet
+          EXTERNAL: "TRUE"
+        StorageDescriptor:
+          Location: !Sub "s3://${AnalyticsBucket}/curated/fact_media_engagement"
+          InputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat
+          OutputFormat: org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat
+          SerdeInfo:
+            SerializationLibrary: org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe
+          Columns:
+            - Name: media_id
+              Type: string
+            - Name: visitor_id
+              Type: string
+            - Name: date
+              Type: date
+            - Name: play_count
+              Type: bigint
+            - Name: play_rate
+              Type: double
+            - Name: total_watch_time
+              Type: double
+            - Name: watched_percent
+              Type: double
+
 Outputs:
   BucketName:
     Value: !Ref AnalyticsBucket

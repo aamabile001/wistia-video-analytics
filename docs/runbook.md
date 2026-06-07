@@ -16,7 +16,7 @@ python scripts/run_ingestion.py --media-ids gskhw4w4lm v08dlrgr7v --output-root 
 python scripts/run_local_pyspark_pipeline.py --raw-root data/raw --curated-root data/curated
 ```
 
-If PySpark fails with `Java not found`, install a JDK and set `JAVA_HOME` before rerunning the transformation.
+If PySpark fails with `Java not found`, install a JDK and set `JAVA_HOME` before rerunning the transformation. On Windows, local PySpark can also fail if Hadoop native utilities such as `winutils.exe` are missing; install/configure the matching Hadoop Windows utilities before rerunning the PySpark job locally.
 
 ## Validation Checks
 
