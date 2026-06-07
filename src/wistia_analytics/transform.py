@@ -5,7 +5,7 @@ from pathlib import Path
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.column import Column
-from pyspark.sql.types import StructType
+from pyspark.sql.types import StringType, StructField, StructType
 
 
 def create_spark(app_name: str = "wistia-video-analytics") -> SparkSession:
@@ -47,17 +47,16 @@ def _first_available(df: DataFrame, *names: str) -> Column:
     return F.coalesce(*[_col_or_null(df, name) for name in names])
 
 
+def _first_available_string(df: DataFrame, *names: str) -> Column:
+    return F.coalesce(*[_col_or_null(df, name).cast("string") for name in names])
+
+
 def build_dim_media(media_df: DataFrame) -> DataFrame:
     return media_df.select(
-        _first_available(media_df, "media_id", "payload.hashed_id", "payload.id", "hashed_id", "id")
-        .cast("string")
+        _first_available_string(media_df, "media_id", "payload.hashed_id", "payload.id", "hashed_id", "id")
         .alias("media_id"),
-        _first_available(media_df, "payload.name", "payload.title", "title", "name")
-        .cast("string")
-        .alias("title"),
-        _first_available(media_df, "payload.url", "payload.embed_url", "url", "embed_url")
-        .cast("string")
-        .alias("url"),
+        _first_available_string(media_df, "payload.name", "payload.title", "title", "name").alias("title"),
+        _first_available_string(media_df, "payload.url", "payload.embed_url", "url", "embed_url").alias("url"),
         F.lit(None).cast("string").alias("channel"),
         _first_available(media_df, "payload.created", "payload.created_at", "created_at", "created")
         .cast("timestamp")
@@ -76,16 +75,16 @@ def normalize_visitor_records(visitor_df: DataFrame) -> DataFrame:
 
 def build_dim_visitor(visitor_df: DataFrame) -> DataFrame:
     return visitor_df.select(
-        _first_available(visitor_df, "visitor_key", "visitor_id", "id").cast("string").alias("visitor_id"),
-        _first_available(visitor_df, "ip", "ip_address").cast("string").alias("ip_address"),
-        _first_available(visitor_df, "country", "country_name").cast("string").alias("country"),
+        _first_available_string(visitor_df, "visitor_key", "visitor_id", "id").alias("visitor_id"),
+        _first_available_string(visitor_df, "ip", "ip_address").alias("ip_address"),
+        _first_available_string(visitor_df, "country", "country_name").alias("country"),
     ).where(F.col("visitor_id").isNotNull()).dropDuplicates(["visitor_id"])
 
 
 def build_fact_media_engagement(visitor_df: DataFrame) -> DataFrame:
     return visitor_df.select(
-        _first_available(visitor_df, "media_id", "media_hashed_id").cast("string").alias("media_id"),
-        _first_available(visitor_df, "visitor_key", "visitor_id", "id").cast("string").alias("visitor_id"),
+        _first_available_string(visitor_df, "media_id", "media_hashed_id").alias("media_id"),
+        _first_available_string(visitor_df, "visitor_key", "visitor_id", "id").alias("visitor_id"),
         F.to_date(
             F.coalesce(_first_available(visitor_df, "created_at", "received_at"), F.current_timestamp())
         ).alias("date"),
@@ -104,7 +103,7 @@ def build_fact_media_engagement(visitor_df: DataFrame) -> DataFrame:
 
 def build_fact_media_stats(media_stats_df: DataFrame) -> DataFrame:
     return media_stats_df.select(
-        _first_available(media_stats_df, "media_id", "payload.media_id").cast("string").alias("media_id"),
+        _first_available_string(media_stats_df, "media_id", "payload.media_id").alias("media_id"),
         F.lit(None).cast("string").alias("visitor_id"),
         F.to_date(F.to_timestamp(F.col("run_id"), "yyyyMMdd'T'HHmmss'Z'")).alias("date"),
         _first_available(media_stats_df, "payload.play_count", "play_count")
@@ -119,7 +118,18 @@ def build_fact_media_stats(media_stats_df: DataFrame) -> DataFrame:
         _first_available(media_stats_df, "payload.engagement", "engagement")
         .cast("double")
         .alias("watched_percent"),
+    ).where(F.col("media_id").isNotNull())
+
+
+def empty_dim_visitor(spark: SparkSession) -> DataFrame:
+    schema = StructType(
+        [
+            StructField("visitor_id", StringType(), True),
+            StructField("ip_address", StringType(), True),
+            StructField("country", StringType(), True),
+        ]
     )
+    return spark.createDataFrame([], schema)
 
 
 def transform_raw_to_curated(spark: SparkSession, raw_root: Path, curated_root: Path) -> None:
@@ -147,6 +157,8 @@ def transform_raw_to_curated(spark: SparkSession, raw_root: Path, curated_root: 
             str(curated_root / "dim_visitor")
         )
         fact_frames.append(build_fact_media_engagement(normalized_visitors))
+    else:
+        empty_dim_visitor(spark).write.mode("overwrite").parquet(str(curated_root / "dim_visitor"))
 
     if fact_frames:
         fact_df = fact_frames[0]
