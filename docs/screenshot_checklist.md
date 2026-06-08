@@ -7,7 +7,8 @@ Capture these screenshots for the final walkthrough package.
 - `pytest` passing in the project terminal.
 - Streamlit dashboard home view.
 - Streamlit media performance table.
-- Streamlit visitor geography section.
+- Streamlit visitor geography section showing known vs Unknown visitor geography counts and the explanatory caption about Wistia source coverage.
+- Streamlit visitor sample showing masked visitor IDs and masked IP addresses.
 - `docs/run_evidence.md` showing completed runs.
 
 ## AWS Evidence
