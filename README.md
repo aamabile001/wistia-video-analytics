@@ -32,6 +32,10 @@ flowchart LR
 - `dim_visitor`
 - `fact_media_engagement`
 
+## Project Status
+
+The core pipeline is implemented and validated. Production run evidence is tracked in `docs/run_evidence.md`; the final submission requires seven successful production-mode runs.
+
 ## Local Setup
 
 ```powershell
@@ -89,6 +93,15 @@ Store copied AWS files in `.aws/credentials` and `.aws/config` in the project fo
 ├── src/wistia_analytics/
 └── tests/
 ```
+
+## Final Submission References
+
+- Architecture: `docs/architecture.md`
+- Data model: `docs/data_model.md`
+- Runbook: `docs/runbook.md`
+- Production run evidence: `docs/run_evidence.md`
+- Final checklist: `docs/final_submission_checklist.md`
+- Walkthrough script: `docs/walkthrough_script.md`
 
 ## Security
 
