@@ -13,8 +13,18 @@ DEFAULT_START_DATE = date(2026, 1, 1)
 DEFAULT_END_DATE = date(2026, 6, 30)
 
 
+def parquet_signature(path: Path) -> tuple[int, int]:
+    if not path.exists():
+        return (0, 0)
+    files = [item for item in path.rglob("*") if item.is_file()]
+    return (
+        sum(int(item.stat().st_mtime) for item in files),
+        sum(item.stat().st_size for item in files),
+    )
+
+
 @st.cache_data
-def load_parquet(name: str) -> pd.DataFrame:
+def load_parquet(name: str, signature: tuple[int, int]) -> pd.DataFrame:
     root = SPARK_CURATED_ROOT if (SPARK_CURATED_ROOT / name).exists() else CURATED_ROOT
     path = root / name
     if not path.exists():
@@ -43,9 +53,11 @@ def mask_ip(value: object) -> object:
 st.set_page_config(page_title="Wistia Video Analytics", layout="wide")
 st.title("Wistia Video Analytics")
 
-fact = load_parquet("fact_media_engagement")
-media = load_parquet("dim_media")
-visitors = load_parquet("dim_visitor")
+fact = load_parquet(
+    "fact_media_engagement", parquet_signature(SPARK_CURATED_ROOT / "fact_media_engagement")
+)
+media = load_parquet("dim_media", parquet_signature(SPARK_CURATED_ROOT / "dim_media"))
+visitors = load_parquet("dim_visitor", parquet_signature(SPARK_CURATED_ROOT / "dim_visitor"))
 
 if fact.empty:
     st.info("No curated engagement data found. Run ingestion and the PySpark pipeline first.")
