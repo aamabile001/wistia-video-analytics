@@ -113,8 +113,6 @@ Resources:
               Type: string
             - Name: visitor_id
               Type: string
-            - Name: date
-              Type: date
             - Name: play_count
               Type: bigint
             - Name: play_rate
@@ -123,6 +121,9 @@ Resources:
               Type: double
             - Name: watched_percent
               Type: double
+        PartitionKeys:
+          - Name: date
+            Type: date
 
 Outputs:
   BucketName:

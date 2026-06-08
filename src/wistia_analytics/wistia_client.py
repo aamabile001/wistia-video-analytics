@@ -67,6 +67,12 @@ class WistiaClient:
 
     def get_media_visitors_page(self, media_id: str, page: int = 1, per_page: int = 100) -> Any:
         return self.get_json(
-            f"stats/medias/{media_id}/visitors.json",
-            params={"page": page, "per_page": per_page},
+            "stats/visitors.json",
+            params={"media_id": media_id, "page": page, "per_page": per_page},
+        )
+
+    def get_media_events_page(self, media_id: str, page: int = 1, per_page: int = 100) -> Any:
+        return self.get_json(
+            "stats/events.json",
+            params={"media_id": media_id, "page": page, "per_page": per_page},
         )

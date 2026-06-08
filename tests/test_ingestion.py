@@ -21,6 +21,11 @@ class FakeClient:
             return {"visitors": []}
         return {"visitors": [{"visitor_key": "visitor-1", "media_id": media_id}]}
 
+    def get_media_events_page(self, media_id: str, page: int, per_page: int) -> dict[str, Any]:
+        if page > 1:
+            return {"events": []}
+        return {"events": [{"event_key": "event-1", "visitor_key": "visitor-1", "media_id": media_id}]}
+
 
 def test_ingestion_writes_raw_files(tmp_path: Path) -> None:
     result = ingest_media_and_visitors(
@@ -32,5 +37,6 @@ def test_ingestion_writes_raw_files(tmp_path: Path) -> None:
     assert result.run_id
     assert len(result.media_files) == 3
     assert len(result.visitor_files) == 1
+    assert len(result.event_files) == 1
     assert result.media_files[0].exists()
     assert result.visitor_files[0].exists()

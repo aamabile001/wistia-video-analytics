@@ -27,7 +27,8 @@ The ingestion layer preserves each run's raw payloads and supports incremental e
 - Media metadata is pulled from the Wistia Data API.
 - Media aggregate stats are pulled from the Wistia Stats API.
 - Media stats by date are pulled from the modern Stats API.
-- The legacy guessed media visitor-list route returned `404` for both assigned media IDs during the first real run. The pipeline records this as a warning and continues so media-level analytics remain usable. Visitor-level enrichment will require either a supported visitor/event listing route, known visitor keys, or SME clarification on the intended Wistia endpoint.
+- Visitor-level records are pulled from `GET /v1/stats/visitors.json?media_id={media_id}`.
+- Event-level records are pulled from `GET /v1/stats/events.json?media_id={media_id}`.
 
 ## Tradeoffs
 

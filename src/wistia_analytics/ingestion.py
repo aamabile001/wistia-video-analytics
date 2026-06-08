@@ -14,6 +14,7 @@ class IngestionResult:
     raw_root: Path
     media_files: list[Path]
     visitor_files: list[Path]
+    event_files: list[Path]
     visitor_warnings: list[str]
 
 
@@ -21,7 +22,7 @@ def _as_records(payload: Any) -> list[Any]:
     if isinstance(payload, list):
         return payload
     if isinstance(payload, dict):
-        for key in ("visitors", "data", "results"):
+        for key in ("visitors", "events", "data", "results"):
             value = payload.get(key)
             if isinstance(value, list):
                 return value
@@ -38,6 +39,7 @@ def ingest_media_and_visitors(
     run_id = utc_run_id()
     media_files: list[Path] = []
     visitor_files: list[Path] = []
+    event_files: list[Path] = []
     visitor_warnings: list[str] = []
 
     for media_id in media_ids:
@@ -124,10 +126,48 @@ def ingest_media_and_visitors(
             if len(records) < visitor_per_page:
                 break
 
+        for page in range(1, max_pages + 1):
+            try:
+                event_payload = client.get_media_events_page(
+                    media_id=media_id,
+                    page=page,
+                    per_page=visitor_per_page,
+                )
+            except WistiaApiError as exc:
+                visitor_warnings.append(f"event list unavailable for {media_id}: {exc}")
+                break
+            records = _as_records(event_payload)
+            if not records:
+                break
+
+            event_path = (
+                output_root
+                / "wistia"
+                / "event_stats"
+                / f"run_id={run_id}"
+                / f"media_id={media_id}"
+                / f"page={page}.json"
+            )
+            write_json(
+                event_path,
+                {
+                    "media_id": media_id,
+                    "run_id": run_id,
+                    "source": "wistia_media_events",
+                    "page": page,
+                    "payload": event_payload,
+                },
+            )
+            event_files.append(event_path)
+
+            if len(records) < visitor_per_page:
+                break
+
     return IngestionResult(
         run_id=run_id,
         raw_root=output_root,
         media_files=media_files,
         visitor_files=visitor_files,
+        event_files=event_files,
         visitor_warnings=visitor_warnings,
     )

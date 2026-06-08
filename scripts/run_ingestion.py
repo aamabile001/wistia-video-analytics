@@ -33,6 +33,7 @@ def main() -> None:
     print(f"run_id={result.run_id}")
     print(f"media_files={len(result.media_files)}")
     print(f"visitor_files={len(result.visitor_files)}")
+    print(f"event_files={len(result.event_files)}")
     for warning in result.visitor_warnings:
         print(f"warning={warning}")
 
