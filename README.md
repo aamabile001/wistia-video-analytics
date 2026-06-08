@@ -52,6 +52,8 @@ Run ingestion locally:
 python scripts/run_ingestion.py --media-ids gskhw4w4lm v08dlrgr7v --output-root data/raw
 ```
 
+For high-volume media, use the resumable pagination flags documented in `docs/runbook.md`.
+
 Run local PySpark transformation:
 
 ```powershell

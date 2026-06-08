@@ -40,3 +40,21 @@ def test_ingestion_writes_raw_files(tmp_path: Path) -> None:
     assert len(result.event_files) == 1
     assert result.media_files[0].exists()
     assert result.visitor_files[0].exists()
+
+
+def test_ingestion_can_resume_page_ranges(tmp_path: Path) -> None:
+    result = ingest_media_and_visitors(
+        client=FakeClient(),  # type: ignore[arg-type]
+        media_ids=["abc123"],
+        output_root=tmp_path,
+        run_id="resume-run",
+        visitor_start_page=2,
+        event_start_page=2,
+        max_pages=1,
+        include_media=False,
+    )
+
+    assert result.run_id == "resume-run"
+    assert len(result.media_files) == 0
+    assert len(result.visitor_files) == 0
+    assert len(result.event_files) == 0

@@ -17,6 +17,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-root", type=Path, default=Path("data/raw"))
     parser.add_argument("--visitor-per-page", type=int, default=100)
     parser.add_argument("--max-pages", type=int, default=100)
+    parser.add_argument("--run-id", help="Reuse an existing run_id folder for resumable ingestion.")
+    parser.add_argument("--visitor-start-page", type=int, default=1)
+    parser.add_argument("--event-start-page", type=int, default=1)
+    parser.add_argument("--skip-media", action="store_true")
+    parser.add_argument("--skip-visitors", action="store_true")
+    parser.add_argument("--skip-events", action="store_true")
     return parser.parse_args()
 
 
@@ -29,6 +35,12 @@ def main() -> None:
         output_root=args.output_root,
         visitor_per_page=args.visitor_per_page,
         max_pages=args.max_pages,
+        run_id=args.run_id,
+        visitor_start_page=args.visitor_start_page,
+        event_start_page=args.event_start_page,
+        include_media=not args.skip_media,
+        include_visitors=not args.skip_visitors,
+        include_events=not args.skip_events,
     )
     print(f"run_id={result.run_id}")
     print(f"media_files={len(result.media_files)}")
