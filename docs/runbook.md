@@ -51,6 +51,8 @@ If the final page in a chunk still contains 100 records, the endpoint may have m
   - `data/curated/dim_visitor`
   - `data/curated/fact_media_engagement`
 - Confirm Streamlit opens without errors.
+- Run the Athena checks in `docs/athena_validation_queries.sql` after S3 curated data and Glue partitions are refreshed.
+- Capture screenshots listed in `docs/screenshot_checklist.md` for final submission evidence.
 
 ## AWS Identity Check
 

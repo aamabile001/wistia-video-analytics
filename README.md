@@ -100,6 +100,9 @@ Store copied AWS files in `.aws/credentials` and `.aws/config` in the project fo
 - Data model: `docs/data_model.md`
 - Runbook: `docs/runbook.md`
 - Production run evidence: `docs/run_evidence.md`
+- Athena validation queries: `docs/athena_validation_queries.sql`
+- Known limitations: `docs/known_limitations.md`
+- Screenshot checklist: `docs/screenshot_checklist.md`
 - Final checklist: `docs/final_submission_checklist.md`
 - Walkthrough script: `docs/walkthrough_script.md`
 

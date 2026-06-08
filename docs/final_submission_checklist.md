@@ -17,6 +17,9 @@
 - [x] Streamlit dashboard.
 - [ ] Seven successful production-mode runs recorded in `docs/run_evidence.md`.
 - [ ] Final dashboard screenshots or demo ready.
+- [ ] Athena validation queries run from `docs/athena_validation_queries.sql`.
+- [ ] Screenshots captured using `docs/screenshot_checklist.md`.
+- [ ] Known limitations reviewed in `docs/known_limitations.md`.
 - [ ] Recorded walkthrough completed.
 
 ## Known Limitations
@@ -32,5 +35,7 @@
 3. Review `docs/data_model.md`.
 4. Review `docs/runbook.md`.
 5. Review `docs/run_evidence.md`.
-6. Inspect source code under `src/wistia_analytics`.
-7. Run tests with `python -m pytest`.
+6. Review `docs/athena_validation_queries.sql`.
+7. Review `docs/known_limitations.md`.
+8. Inspect source code under `src/wistia_analytics`.
+9. Run tests with `python -m pytest`.

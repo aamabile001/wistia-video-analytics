@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from pathlib import Path
 
 import pandas as pd
@@ -8,6 +9,8 @@ import streamlit as st
 
 CURATED_ROOT = Path("data/curated")
 SPARK_CURATED_ROOT = Path("data/curated_spark")
+DEFAULT_START_DATE = date(2026, 1, 1)
+DEFAULT_END_DATE = date(2026, 6, 30)
 
 
 @st.cache_data
@@ -34,8 +37,19 @@ if "date" in fact.columns:
     fact["date"] = pd.to_datetime(fact["date"], errors="coerce").dt.date
     dates = sorted(date for date in fact["date"].dropna().unique())
     if dates:
-        start_date, end_date = st.date_input("Date range", value=(dates[0], dates[-1]))
-        fact = fact[(fact["date"] >= start_date) & (fact["date"] <= end_date)]
+        default_start = max(dates[0], DEFAULT_START_DATE)
+        default_end = min(dates[-1], DEFAULT_END_DATE)
+        if default_start > default_end:
+            default_start, default_end = dates[0], dates[-1]
+        selected_dates = st.date_input(
+            "Date range",
+            value=(default_start, default_end),
+            min_value=dates[0],
+            max_value=dates[-1],
+        )
+        if len(selected_dates) == 2:
+            start_date, end_date = selected_dates
+            fact = fact[(fact["date"] >= start_date) & (fact["date"] <= end_date)]
 
 total_plays = int(fact["play_count"].fillna(0).sum()) if "play_count" in fact.columns else 0
 unique_visitors = fact["visitor_id"].dropna().nunique() if "visitor_id" in fact.columns else 0
