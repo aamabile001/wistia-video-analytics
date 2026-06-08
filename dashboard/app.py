@@ -22,6 +22,24 @@ def load_parquet(name: str) -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
+def mask_value(value: object, visible_prefix: int = 8) -> object:
+    if pd.isna(value):
+        return value
+    text = str(value)
+    if len(text) <= visible_prefix:
+        return "***"
+    return f"{text[:visible_prefix]}..."
+
+
+def mask_ip(value: object) -> object:
+    if pd.isna(value):
+        return value
+    parts = str(value).split(".")
+    if len(parts) == 4:
+        return ".".join([parts[0], parts[1], "x", "x"])
+    return mask_value(value, visible_prefix=6)
+
+
 st.set_page_config(page_title="Wistia Video Analytics", layout="wide")
 st.title("Wistia Video Analytics")
 
@@ -51,6 +69,15 @@ if "date" in fact.columns:
             start_date, end_date = selected_dates
             fact = fact[(fact["date"] >= start_date) & (fact["date"] <= end_date)]
 
+filtered_visitors = visitors
+if (
+    not visitors.empty
+    and "visitor_id" in visitors.columns
+    and "visitor_id" in fact.columns
+):
+    selected_visitor_ids = fact["visitor_id"].dropna().unique()
+    filtered_visitors = visitors[visitors["visitor_id"].isin(selected_visitor_ids)]
+
 total_plays = int(fact["play_count"].fillna(0).sum()) if "play_count" in fact.columns else 0
 unique_visitors = fact["visitor_id"].dropna().nunique() if "visitor_id" in fact.columns else 0
 watch_time = (
@@ -78,11 +105,11 @@ if {"media_id", "play_count"}.issubset(fact.columns):
         media_perf = media_perf.merge(media[["media_id", "title"]], on="media_id", how="left")
     st.dataframe(media_perf.sort_values("play_count", ascending=False), width="stretch")
 
-if not visitors.empty:
+if not filtered_visitors.empty:
     st.subheader("Visitor geography")
-    if "country" in visitors.columns:
+    if "country" in filtered_visitors.columns:
         countries = (
-            visitors["country"]
+            filtered_visitors["country"]
             .fillna("Unknown")
             .value_counts()
             .rename_axis("country")
@@ -91,7 +118,15 @@ if not visitors.empty:
         st.dataframe(countries.head(25), width="stretch")
 
     st.subheader("Visitor sample")
-    st.dataframe(visitors.head(100), width="stretch")
+    visitor_sample = filtered_visitors.head(100).copy()
+    if "visitor_id" in visitor_sample.columns:
+        visitor_sample["visitor_id"] = visitor_sample["visitor_id"].map(mask_value)
+    if "ip_address" in visitor_sample.columns:
+        visitor_sample["ip_address"] = visitor_sample["ip_address"].map(mask_ip)
+    st.dataframe(visitor_sample, width="stretch")
 
 st.subheader("Engagement sample")
-st.dataframe(fact.head(100), width="stretch")
+engagement_sample = fact.head(100).copy()
+if "visitor_id" in engagement_sample.columns:
+    engagement_sample["visitor_id"] = engagement_sample["visitor_id"].map(mask_value)
+st.dataframe(engagement_sample, width="stretch")
