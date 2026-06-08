@@ -116,9 +116,21 @@ if not filtered_visitors.empty:
             .reset_index(name="visitors")
         )
         st.dataframe(countries.head(25), width="stretch")
+        known_geo = int(filtered_visitors["country"].notna().sum())
+        st.caption(
+            f"Known geography is available for {known_geo:,} of "
+            f"{len(filtered_visitors):,} visitors in the selected date range. "
+            "Wistia visitor records often omit IP/country; event records provide geography when available."
+        )
 
     st.subheader("Visitor sample")
-    visitor_sample = filtered_visitors.head(100).copy()
+    visitor_sample = filtered_visitors.copy()
+    if "country" in visitor_sample.columns:
+        visitor_sample = visitor_sample.assign(
+            _has_geo=visitor_sample["country"].notna().astype(int)
+        ).sort_values("_has_geo", ascending=False)
+        visitor_sample = visitor_sample.drop(columns=["_has_geo"])
+    visitor_sample = visitor_sample.head(100)
     if "visitor_id" in visitor_sample.columns:
         visitor_sample["visitor_id"] = visitor_sample["visitor_id"].map(mask_value)
     if "ip_address" in visitor_sample.columns:

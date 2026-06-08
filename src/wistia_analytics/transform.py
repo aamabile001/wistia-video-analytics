@@ -100,12 +100,16 @@ def normalize_visitor_records(visitor_df: DataFrame) -> DataFrame:
 
 
 def build_dim_visitor(visitor_df: DataFrame) -> DataFrame:
-    return visitor_df.select(
+    visitor_records = visitor_df.select(
         _first_available_string(visitor_df, "visitor_key", "visitor_id", "id", "visitor_identity")
         .alias("visitor_id"),
         _first_available_string(visitor_df, "ip", "ip_address").alias("ip_address"),
         _first_available_string(visitor_df, "country", "country_name").alias("country"),
-    ).where(F.col("visitor_id").isNotNull()).dropDuplicates(["visitor_id"])
+    ).where(F.col("visitor_id").isNotNull())
+    return visitor_records.groupBy("visitor_id").agg(
+        F.first("ip_address", ignorenulls=True).alias("ip_address"),
+        F.first("country", ignorenulls=True).alias("country"),
+    )
 
 
 def build_fact_media_engagement(visitor_df: DataFrame) -> DataFrame:
