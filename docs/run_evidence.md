@@ -19,7 +19,7 @@ For each run:
 | --- | --- | --- | --- | --- | ---: | ---: | ---: | --- | --- | ---: | --- |
 | 1 | 2026-06-08 | 20260608T135031Z | gskhw4w4lm, v08dlrgr7v | Bounded large pull; v08dlrgr7v visitors/events capped and resumable | 2 | 106,733 | 220,470 | Yes | Yes | 776 | gskhw4w4lm events completed at page 165 with 62 records. v08dlrgr7v visitors reached page 1000 with 100 records; v08dlrgr7v events reached page 375 with 100 records. Continue with resumable commands if exhaustive backfill is required. |
 | 2 | 2026-06-09 | 20260609T125052Z | gskhw4w4lm, v08dlrgr7v | Bounded daily pull; both media IDs included | 2 | 106,774 | 306,934 | Yes | Yes | 777 | Media metadata/stats captured for both IDs. gskhw4w4lm visitors capped at 500 pages; gskhw4w4lm events completed at page 165. v08dlrgr7v visitors/events capped at 100 pages each. Athena row-count validation succeeded after MSCK repair. |
-| 3 |  |  |  |  |  |  |  |  |  |  |  |
+| 3 | 2026-06-11 | 20260611T174107Z | gskhw4w4lm, v08dlrgr7v | Bounded daily pull; both media IDs included | 2 | 106,834 | 386,938 | Yes | Yes | 779 | Media metadata/stats captured for both IDs. Visitors/events capped at 100 pages for both media IDs. Raw sync included local files from the interrupted 2026-06-10 run plus the 2026-06-11 run. Athena row-count validation succeeded after MSCK repair. |
 | 4 |  |  |  |  |  |  |  |  |  |  |  |
 | 5 |  |  |  |  |  |  |  |  |  |  |  |
 | 6 |  |  |  |  |  |  |  |  |  |  |  |
